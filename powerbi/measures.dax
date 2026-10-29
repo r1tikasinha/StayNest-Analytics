@@ -1,0 +1,103 @@
+// ============ StayNest DAX (paste each into Modeling > New measure) ============
+// Create a table named "_Measures" (Enter Data, one blank column) to hold all measures.
+
+// ---- Calendar (Modeling > New table). Relate Calendar[Date] -> bookings[Check_In] (active) ----
+Calendar =
+ADDCOLUMNS(
+    CALENDAR(DATE(2025,1,1), DATE(2026,12,31)),
+    "Year", YEAR([Date]),
+    "Month No", MONTH([Date]),
+    "Month", FORMAT([Date], "MMM"),
+    "Year-Month", FORMAT([Date], "YYYY-MM"),
+    "Weekday No", WEEKDAY([Date], 2),
+    "Weekday", FORMAT([Date], "ddd"),
+    "Day Type", IF(WEEKDAY([Date], 2) IN {5,6,7}, "Weekend", "Weekday")
+)
+// Then: sort Month by Month No, Weekday by Weekday No.
+
+// ---- Core ----
+Valid Bookings =
+CALCULATE(COUNTROWS(bookings), bookings[Booking_Status] IN {"Confirmed","Completed"})
+
+Total Bookings = COUNTROWS(bookings)
+
+Cancelled Bookings =
+CALCULATE(COUNTROWS(bookings), bookings[Booking_Status] = "Cancelled")
+
+Total Revenue =
+CALCULATE(SUM(bookings[Revenue]), bookings[Booking_Status] IN {"Confirmed","Completed"})
+
+Avg Booking Value = DIVIDE([Total Revenue], [Valid Bookings])
+
+Cancellation Rate = DIVIDE([Cancelled Bookings], [Total Bookings])
+
+Lost Revenue =
+CALCULATE(SUM(bookings[Revenue]), bookings[Booking_Status] = "Cancelled")
+
+Avg Rating =
+CALCULATE(AVERAGE(bookings[Rating]), bookings[Booking_Status] = "Completed")
+
+// ---- Hotel performance ----
+Room Nights Sold =
+CALCULATE(SUM(bookings[Nights]), bookings[Booking_Status] IN {"Confirmed","Completed"})
+
+ADR = DIVIDE([Total Revenue], [Room Nights Sold])
+
+Available Rooms =
+CALCULATE(COUNTROWS(rooms), rooms[Room_Status] = "Available")
+
+// Approximation: nights are counted in the check-in period
+Occupancy Rate =
+DIVIDE([Room Nights Sold], [Available Rooms] * COUNTROWS(VALUES('Calendar'[Date])))
+
+RevPAR = DIVIDE([Total Revenue], [Available Rooms] * COUNTROWS(VALUES('Calendar'[Date])))
+
+Avg Length of Stay = DIVIDE([Room Nights Sold], [Valid Bookings])
+
+// ---- Booking behaviour ----
+Avg Lead Time =
+AVERAGEX(bookings, DATEDIFF(bookings[Booking_Date], bookings[Check_In], DAY))
+
+Avg Discount % = AVERAGE(bookings[Discount])
+
+// ---- Customers ----
+Total Customers = DISTINCTCOUNT(bookings[Customer_ID])
+
+Avg Spend per Customer = DIVIDE([Total Revenue], [Total Customers])
+
+Returning Customers =
+CALCULATE(DISTINCTCOUNT(bookings[Customer_ID]), customers[Customer_Type] = "Returning")
+
+Repeat Customer % = DIVIDE([Returning Customers], [Total Customers])
+
+// ---- Time intelligence ----
+Revenue Last Month =
+CALCULATE([Total Revenue], DATEADD('Calendar'[Date], -1, MONTH))
+
+Revenue MoM % = DIVIDE([Total Revenue] - [Revenue Last Month], [Revenue Last Month])
+
+Revenue YTD = TOTALYTD([Total Revenue], 'Calendar'[Date])
+
+// ---- Calculated columns on bookings (Modeling > New column) ----
+Lead Time Bucket =
+SWITCH(TRUE(),
+    DATEDIFF(bookings[Booking_Date], bookings[Check_In], DAY) <= 7,  "0-7 days",
+    DATEDIFF(bookings[Booking_Date], bookings[Check_In], DAY) <= 30, "8-30 days",
+    DATEDIFF(bookings[Booking_Date], bookings[Check_In], DAY) <= 90, "31-90 days",
+    "90+ days")
+
+Discount Band =
+SWITCH(TRUE(),
+    bookings[Discount] = 0,    "0%",
+    bookings[Discount] <= 0.10, "1-10%",
+    bookings[Discount] <= 0.20, "11-20%",
+    "20%+")
+
+// ---- Calculated column on customers ----
+Age Group =
+SWITCH(TRUE(),
+    customers[Age] < 25, "18-24",
+    customers[Age] < 35, "25-34",
+    customers[Age] < 45, "35-44",
+    customers[Age] < 55, "45-54",
+    "55+")

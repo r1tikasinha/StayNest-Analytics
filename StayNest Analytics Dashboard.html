@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>StayNest Analytics Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--bd:#e2e8f0;--tx:#0f172a;--mu:#64748b;--a:#0d9488;--grid:#e2e8f0;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f172a;--card:#1e293b;--bd:#334155;--tx:#e2e8f0;--mu:#94a3b8;--a:#2ec4b6;--grid:#334155;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--bd:#334155;--tx:#e2e8f0;--mu:#94a3b8;--a:#2ec4b6;--grid:#334155;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 -apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:1200px;margin:auto}
+h1{font-size:20px;margin:0}.sub{color:var(--mu);font-size:12px;margin-bottom:12px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}nav button{background:var(--card);color:var(--tx);border:1px solid var(--bd);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit}
+nav button.on{background:var(--a);color:#fff;border-color:var(--a)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.k,.c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px}.k b{display:block;font-size:22px;color:var(--a)}.k span{color:var(--mu);font-size:12px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}.c h3{margin:0 0 8px;font-size:13px;color:var(--mu);font-weight:600}
+.c canvas{max-height:260px}.pg{display:none}.pg.on{display:block}.ins{margin-top:10px;border-left:3px solid var(--a)}
+.w{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left}
+</style></head><body>
+<h1>StayNest Analytics</h1><div class="sub">Simulated hotel data · 25,000 bookings · Jan 2025 to Oct 2026 · revenue excludes cancelled bookings</div>
+<nav id="nav"></nav>
+<div class="pg on" id="p0"><div class="kpis" id="k0"></div><div class="g">
+<div class="c"><h3>Monthly revenue (₹ lakh, by check-in month)</h3><canvas id="c1"></canvas></div>
+<div class="c"><h3>Monthly bookings</h3><canvas id="c2"></canvas></div>
+<div class="c"><h3>Revenue by room type (₹ lakh)</h3><canvas id="c3"></canvas></div>
+<div class="c"><h3>Booking status</h3><canvas id="c4"></canvas></div></div></div>
+<div class="pg" id="p1"><div class="kpis" id="k1"></div><div class="g">
+<div class="c"><h3>New vs returning customers</h3><canvas id="c5"></canvas></div>
+<div class="c"><h3>Revenue by city, top 8 (₹ lakh)</h3><canvas id="c6"></canvas></div>
+<div class="c w"><h3>Top 10 customers</h3><table id="tt"></table></div></div></div>
+<div class="pg" id="p2"><div class="kpis" id="k2"></div><div class="g">
+<div class="c"><h3>ADR by room type (₹)</h3><canvas id="c7"></canvas></div>
+<div class="c"><h3>Average rating by room type</h3><canvas id="c8"></canvas></div>
+<div class="c"><h3>Approx. occupancy by month (%)</h3><canvas id="c9"></canvas></div></div></div>
+<div class="pg" id="p3"><div class="kpis" id="k3"></div><div class="g">
+<div class="c"><h3>Cancellation rate by channel (%)</h3><canvas id="c10"></canvas></div>
+<div class="c"><h3>Cancellation rate by discount band (%)</h3><canvas id="c11"></canvas></div>
+<div class="c"><h3>Cancellation rate by lead time (%)</h3><canvas id="c12"></canvas></div>
+<div class="c"><h3>Payment methods</h3><canvas id="c13"></canvas></div></div>
+<div class="c ins" id="ins"></div></div>
+<script>
+const D={"kpi": {"rev": 207953343.5, "n": 25000, "abv": 10816.256293560804, "can": 23.096, "rating": 4.056881057268722, "adr": 3646.8966977657747, "cust": 4752, "rep": 86.53198653198653, "occ": 78.58636363636363, "lost": 62574308.5}, "mon": {"l": ["2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10"], "rev": [104.66, 88.7, 69.19, 68.07, 93.07, 88.94, 59.88, 59.57, 60.26, 104.05, 100.2, 131.35, 112.45, 81.66, 72.3, 63.32, 97.38, 99.11, 62.23, 64.81, 65.9, 108.3], "n": [946, 806, 656, 635, 847, 841, 592, 568, 598, 938, 931, 1128, 1003, 756, 694, 611, 879, 899, 598, 627, 646, 976], "occ": [93.3, 87.7, 64.7, 65.9, 83.4, 85.8, 56.7, 57.2, 57.7, 93.7, 94.6, 112.0, 98.2, 83.4, 68.5, 61.3, 87.8, 93.6, 59.4, 60.6, 66.0, 97.4]}, "rt": {"l": ["Deluxe", "Standard", "Suite"], "rev": [901.3, 714.4, 463.8], "adr": [4011, 2516, 7543], "rating": [4.11, 3.97, 4.26], "n": [7544, 9602, 2080]}, "st": {"Completed": 17025, "Cancelled": 5774, "Confirmed": 2201}, "ch": {"l": ["OTA", "App", "Website", "Walk-in"], "v": [33.1, 21.6, 15.5, 9.3]}, "dis": {"l": ["0%", "1-10%", "11-20%", "20%+"], "v": [20.0, 23.0, 26.0, 27.5]}, "lt": {"l": ["0-7 d", "8-30 d", "31-90 d", "90+ d"], "v": [21.2, 22.5, 23.8, 24.9]}, "city": {"l": ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Pune", "Gurugram", "Kolkata"], "v": [327.8, 326.4, 269.4, 179.6, 166.1, 148.8, 141.2, 133.1]}, "cust": {"Returning": 4487, "New": 265}, "pm": {"UPI": 10936, "Card": 7159, "Net Banking": 3582, "Cash": 2439}, "top": [[3846, "Kavya Kapoor", "Mumbai", 55, 638942], [3979, "Arjun Das", "Bengaluru", 37, 439478], [2715, "Siddharth Mehta", "Mumbai", 46, 420770], [1566, "Varun Patel", "Mumbai", 33, 375814], [5241, "Varun Patel", "Bengaluru", 30, 365817], [2835, "Aditi Kapoor", "Chandigarh", 34, 363496], [2333, "Isha Das", "Hyderabad", 32, 343274], [4644, "Karan Das", "Lucknow", 26, 334101], [5952, "Kavya Joshi", "Lucknow", 31, 321955], [3561, "Siddharth Das", "Pune", 25, 298658]]},K=D.kpi,S=getComputedStyle(document.documentElement);
+const v=n=>S.getPropertyValue(n).trim(),PAL=["#2EC4B6","#FF9F1C","#E71D36","#5C7CFA","#B197FC","#8D99AE"];
+Chart.defaults.color=v("--mu");Chart.defaults.borderColor=v("--grid");Chart.defaults.maintainAspectRatio=true;
+const f=n=>n.toLocaleString("en-IN",{maximumFractionDigits:0});
+const kp=(id,a)=>document.getElementById(id).innerHTML=a.map(x=>`<div class="k"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
+kp("k0",[["Total revenue","₹"+(K.rev/1e7).toFixed(2)+" Cr"],["Total bookings",f(K.n)],["Avg booking value","₹"+f(K.abv)],["Avg occupancy",K.occ.toFixed(1)+"%"],["Cancellation rate",K.can.toFixed(1)+"%"],["Avg rating",K.rating.toFixed(2)]]);
+kp("k1",[["Customers",f(K.cust)],["Repeat customers",K.rep.toFixed(1)+"%"],["Avg spend / customer","₹"+f(K.rev/K.cust)]]);
+kp("k2",[["ADR","₹"+f(K.adr)],["Avg rating",K.rating.toFixed(2)],["Avg occupancy",K.occ.toFixed(1)+"%"]]);
+kp("k3",[["Cancellation rate",K.can.toFixed(1)+"%"],["Revenue lost","₹"+(K.lost/1e7).toFixed(2)+" Cr"],["Cancelled bookings",f(D.st.Cancelled)]]);
+const mk=(id,t,l,d,o={})=>new Chart(id,{type:t,data:{labels:l,datasets:d},options:o});
+const ds=(x,c)=>({data:x,backgroundColor:c||PAL[0],borderColor:c||PAL[0]});
+const leg={plugins:{legend:{display:false}}},ring={plugins:{legend:{position:"bottom"}}};
+mk("c1","line",D.mon.l,[{...ds(D.mon.rev),tension:.3,pointRadius:0}],leg);
+mk("c2","bar",D.mon.l,[ds(D.mon.n,PAL[3])],leg);
+mk("c3","bar",D.rt.l,[ds(D.rt.rev)],leg);
+mk("c4","doughnut",Object.keys(D.st),[{data:Object.values(D.st),backgroundColor:[PAL[0],PAL[2],PAL[1]],borderColor:v("--card")}],ring);
+mk("c5","doughnut",Object.keys(D.cust),[{data:Object.values(D.cust),backgroundColor:PAL,borderColor:v("--card")}],ring);
+mk("c6","bar",D.city.l,[ds(D.city.v,PAL[3])],{...leg,indexAxis:"y"});
+document.getElementById("tt").innerHTML="<tr><th>Customer</th><th>City</th><th>Stays</th><th>Spend</th></tr>"+D.top.map(t=>`<tr><td>${t[1]}</td><td>${t[2]}</td><td>${t[3]}</td><td>₹${f(t[4])}</td></tr>`).join("");
+mk("c7","bar",D.rt.l,[ds(D.rt.adr,PAL[1])],leg);
+mk("c8","bar",D.rt.l,[ds(D.rt.rating,PAL[4])],{...leg,scales:{y:{min:3,max:5}}});
+mk("c9","line",D.mon.l,[{...ds(D.mon.occ,PAL[0]),tension:.3,pointRadius:0}],leg);
+mk("c10","bar",D.ch.l,[ds(D.ch.v,PAL[2])],leg);mk("c11","bar",D.dis.l,[ds(D.dis.v,PAL[1])],leg);
+mk("c12","bar",D.lt.l,[ds(D.lt.v,PAL[4])],leg);
+mk("c13","doughnut",Object.keys(D.pm),[{data:Object.values(D.pm),backgroundColor:PAL,borderColor:v("--card")}],ring);
+document.getElementById("ins").innerHTML=`<b>Insights</b><br>• ${D.ch.l[0]} bookings cancel most (${D.ch.v[0]}%) vs ${D.ch.l[D.ch.l.length-1]} at ${D.ch.v[D.ch.v.length-1]}%: promote direct booking perks.<br>• Cancellation rises from ${D.dis.v[0]}% (no discount) to ${D.dis.v[D.dis.v.length-1]}% at 20%+ discounts: heavy discounts bring less reliable bookings.<br>• Suites have the highest ADR (₹${f(D.rt.adr[D.rt.l.indexOf("Suite")])}) but the fewest bookings: target them with weekday offers.`;
+const names=["Executive overview","Customers","Rooms & revenue","Booking & cancellation"],nav=document.getElementById("nav");
+names.forEach((n,i)=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>show(i);nav.append(b)});
+function show(i){document.querySelectorAll(".pg").forEach((p,j)=>p.classList.toggle("on",i===j));[...nav.children].forEach((b,j)=>b.classList.toggle("on",i===j))}
+show(0);
+</script></body></html>

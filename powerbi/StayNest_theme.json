@@ -1,0 +1,22 @@
+{
+  "name": "StayNest Dark",
+  "dataColors": ["#2EC4B6", "#FF9F1C", "#E71D36", "#5C7CFA", "#B197FC", "#8D99AE", "#FFD166", "#06D6A0"],
+  "background": "#0F172A",
+  "foreground": "#E2E8F0",
+  "tableAccent": "#2EC4B6",
+  "good": "#06D6A0",
+  "neutral": "#FFD166",
+  "bad": "#E71D36",
+  "textClasses": {
+    "title":  { "fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#E2E8F0" },
+    "label":  { "fontFace": "Segoe UI", "fontSize": 10, "color": "#CBD5E1" },
+    "callout": { "fontFace": "Segoe UI Semibold", "fontSize": 28, "color": "#2EC4B6" }
+  },
+  "visualStyles": {
+    "*": { "*": {
+      "background": [{ "color": { "solid": { "color": "#1E293B" } }, "transparency": 0 }],
+      "border": [{ "show": true, "color": { "solid": { "color": "#334155" } }, "radius": 8 }]
+    } },
+    "page": { "*": { "background": [{ "color": { "solid": { "color": "#0F172A" } }, "transparency": 0 }] } }
+  }
+}
