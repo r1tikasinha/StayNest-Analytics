@@ -6,7 +6,7 @@ Python (data generation) > MySQL (analysis) > Power BI (dashboard).
 ```
 data/       customers, rooms, bookings, payments CSVs
 python/     generate_data.py   (rerun to regenerate; seed fixed)
-powerbi/    measures.dax, StayNest_theme.json, StayNest_Analytics.pbix (you build this)
+
 docs/       POWERBI_BUILD_GUIDE.md
 ```
 
